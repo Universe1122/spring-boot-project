@@ -3,29 +3,37 @@ package com.example.springbootproject.controller;
 import com.example.springbootproject.domain.MemberForm;
 import com.example.springbootproject.service.MemberService;
 import com.google.gson.JsonObject;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/auth")
+@RequiredArgsConstructor
 public class LoginController{
-    @Autowired
-    MemberService memberService;
 
-    @GetMapping("/auth/login")
+    private final MemberService memberService;
+
+    @GetMapping("/login")
     public String showLoginPage(){
         return "login";
     }
 
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     @ResponseBody
     public String processLogin(@RequestBody MemberForm memberForm ){
         JsonObject json = new JsonObject();
 
-        json.addProperty("userid", memberForm.getUserid());
-        json.addProperty("userpw", memberForm.getUserpw());
+        if(memberService.login(memberForm)){
+            json.addProperty("result", "success");
+        }
+        else{
+            json.addProperty("result", "error");
+            json.addProperty("message" , "회원 정보를 찾을 수 없습니다.");
+        }
 
         return json.toString();
+
     }
 }
