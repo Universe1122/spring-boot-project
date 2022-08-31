@@ -5,8 +5,13 @@ import com.example.springbootproject.service.MemberService;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/auth")
@@ -22,18 +27,19 @@ public class LoginController{
 
     @PostMapping("/login")
     @ResponseBody
-    public String processLogin(@RequestBody MemberForm memberForm ){
-        JsonObject json = new JsonObject();
+    public ResponseEntity<Map<String, String>> processLogin(@RequestBody MemberForm memberForm ){
+        Map<String, String> result = new HashMap<>();
 
         if(memberService.login(memberForm)){
-            json.addProperty("result", "success");
+            result.put("result", "success");
         }
         else{
-            json.addProperty("result", "error");
-            json.addProperty("message" , "회원 정보를 찾을 수 없습니다.");
+            result.put("result", "error");
+            result.put("message", "회원 정보를 찾을 수 없습니다.");
         }
 
-        return json.toString();
-
+        // ResponseEntity 사용 방법
+        // https://hyeonic.tistory.com/197
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
